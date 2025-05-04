@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using AzureMcp.Arguments;
-using AzureMcp.Models.Command;
 
 namespace AzureMcp.Models.Argument;
 

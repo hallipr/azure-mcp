@@ -3,6 +3,7 @@
 
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.AppConfig.Account;
+using AzureMcp.Models.AppConfig;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -41,7 +42,9 @@ public sealed class AccountListCommand(ILogger<AccountListCommand> logger) : Sub
                 args.RetryPolicy);
 
             context.Response.Results = accounts?.Count > 0 ?
-                new { accounts } :
+                ResponseResult.Create(
+                    new AccountListCommandResult(accounts),
+                    AppConfigJsonContext.Default.AccountListCommandResult) :
                 null;
         }
         catch (Exception ex)
@@ -52,4 +55,6 @@ public sealed class AccountListCommand(ILogger<AccountListCommand> logger) : Sub
 
         return context.Response;
     }
+
+    internal record AccountListCommandResult(List<AppConfigurationAccount> Accounts);
 }

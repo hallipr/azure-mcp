@@ -18,9 +18,9 @@ public sealed class KeyValueUnlockCommand(ILogger<KeyValueUnlockCommand> logger)
 
     protected override string GetCommandDescription() =>
         """
-        Unlock a key-value setting in an App Configuration store. This command removes the read-only mode from a 
-        key-value setting, allowing modifications to its value. You must specify an account name and key. Optionally, 
-        you can specify a label to unlock a specific labeled version of the setting, otherwise the setting with the 
+        Unlock a key-value setting in an App Configuration store. This command removes the read-only mode from a
+        key-value setting, allowing modifications to its value. You must specify an account name and key. Optionally,
+        you can specify a label to unlock a specific labeled version of the setting, otherwise the setting with the
         default label will be unlocked.
         """;
 
@@ -45,7 +45,10 @@ public sealed class KeyValueUnlockCommand(ILogger<KeyValueUnlockCommand> logger)
                 args.RetryPolicy,
                 args.Label);
 
-            context.Response.Results = new { key = args.Key, label = args.Label };
+            context.Response.Results =
+                ResponseResult.Create(
+                    new KeyValueUnlockResult(args.Key, args.Label),
+                    AppConfigJsonContext.Default.KeyValueUnlockResult);
         }
         catch (Exception ex)
         {
@@ -55,4 +58,6 @@ public sealed class KeyValueUnlockCommand(ILogger<KeyValueUnlockCommand> logger)
 
         return context.Response;
     }
+
+    internal record KeyValueUnlockResult(string? Key, string? Label);
 }

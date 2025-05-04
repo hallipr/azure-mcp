@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using AzureMcp.Arguments;
 using AzureMcp.Models.Monitor;
 
@@ -9,7 +9,7 @@ namespace AzureMcp.Services.Interfaces;
 
 public interface IMonitorService
 {
-    Task<List<JsonDocument>> QueryWorkspace(
+    Task<List<JsonNode>> QueryWorkspace(
         string subscription,
         string workspace,
         string query,
@@ -29,7 +29,7 @@ public interface IMonitorService
         string? tenant = null,
         RetryPolicyArguments? retryPolicy = null);
 
-    Task<object> QueryLogs(
+    Task<List<JsonNode>> QueryLogs(
         string subscription,
         string workspace,
         string query,

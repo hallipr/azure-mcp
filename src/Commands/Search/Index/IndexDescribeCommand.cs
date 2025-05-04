@@ -3,6 +3,8 @@
 
 using System.CommandLine;
 using System.CommandLine.Parsing;
+using System.Diagnostics.CodeAnalysis;
+using Azure.Search.Documents.Indexes.Models;
 using AzureMcp.Arguments.Search.Index;
 using AzureMcp.Models.Argument;
 using AzureMcp.Models.Command;
@@ -22,9 +24,9 @@ public sealed class IndexDescribeCommand(ILogger<IndexDescribeCommand> logger) :
 
     protected override string GetCommandDescription() =>
         """
-        Get the full definition of an Azure AI Search index. Returns the complete index configuration including 
+        Get the full definition of an Azure AI Search index. Returns the complete index configuration including
         fields, analyzers, suggesters, scoring profiles, and other settings.
-        
+
         Required arguments:
         - service-name: The name of the Azure AI Search service
         - index-name: The name of the search index to retrieve
@@ -71,7 +73,9 @@ public sealed class IndexDescribeCommand(ILogger<IndexDescribeCommand> logger) :
                 args.Index!,
                 args.RetryPolicy);
 
-            context.Response.Results = indexDefinition != null ? new { index = indexDefinition } : null;
+            context.Response.Results = indexDefinition != null
+                ? ResponseResult.Create(new(indexDefinition), SearchJsonContext.Default.IndexDescribeCommandResult)
+                : null;
         }
         catch (Exception ex)
         {
@@ -80,6 +84,43 @@ public sealed class IndexDescribeCommand(ILogger<IndexDescribeCommand> logger) :
         }
 
         return context.Response;
+    }
+
+    public sealed record IndexDescribeCommandResult(SearchIndexProxy Index);
+
+    /// <summary>
+    /// This record represents the JSON-serialized form of <see cref="SearchIndex"/>
+    /// </summary>
+    public sealed record SearchIndexProxy()
+    {
+        public required string Name { get; init; }
+        public required List<SearchFieldProxy> Fields { get; init; }
+
+        public sealed record SearchFieldProxy()
+        {
+            public required string Name { get; init; }
+            public required SearchFieldDataType Type { get; init; }
+            public bool? Key { get; init; }
+            public bool? Searchable { get; init; }
+            public bool? Filterable { get; init; }
+
+            [SetsRequiredMembers]
+            public SearchFieldProxy(SearchField field) : this()
+            {
+                Name = field.Name;
+                Type = field.Type;
+                Key = field.IsKey;
+                Searchable = field.IsSearchable;
+                Filterable = field.IsFilterable;
+            }
+        }
+
+        [SetsRequiredMembers]
+        public SearchIndexProxy(SearchIndex index) : this()
+        {
+            Name = index.Name;
+            Fields = index.Fields.Select(field => new SearchFieldProxy(field)).ToList();
+        }
     }
 
     private static ArgumentBuilder<IndexDescribeArguments> CreateServiceArgument() =>

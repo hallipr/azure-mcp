@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json;
+using Azure.Search.Documents.Indexes.Models;
 using AzureMcp.Arguments;
+using static AzureMcp.Commands.Search.Index.IndexDescribeCommand;
 
 namespace AzureMcp.Services.Interfaces;
 
@@ -23,7 +26,7 @@ public interface ISearchService
     /// <param name="indexName">The name of the search index</param>
     /// <param name="retryPolicy">Optional retry policy for the operation</param>
     /// <returns>The search index definition object</returns>
-    Task<object> DescribeIndex(
+    Task<SearchIndexProxy?> DescribeIndex(
         string serviceName,
         string indexName,
         RetryPolicyArguments? retryPolicy = null);
@@ -36,7 +39,7 @@ public interface ISearchService
     /// <param name="searchText">The search query text</param>
     /// <param name="retryPolicy">Optional retry policy for the operation</param>
     /// <returns>The search results excluding large vector fields</returns>
-    Task<object> QueryIndex(
+    Task<List<JsonElement>> QueryIndex(
         string serviceName,
         string indexName,
         string searchText,

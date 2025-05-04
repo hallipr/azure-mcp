@@ -10,6 +10,7 @@ using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using AzureMcp.Arguments;
 using AzureMcp.Services.Interfaces;
+using static AzureMcp.Commands.Search.Index.IndexDescribeCommand;
 
 namespace AzureMcp.Services.Azure.Search;
 
@@ -90,7 +91,7 @@ public sealed class SearchService(ISubscriptionService subscriptionService, ICac
         return indexes;
     }
 
-    public async Task<object> DescribeIndex(
+    public async Task<SearchIndexProxy?> DescribeIndex(
         string serviceName,
         string indexName,
         RetryPolicyArguments? retryPolicy = null)
@@ -109,7 +110,7 @@ public sealed class SearchService(ISubscriptionService subscriptionService, ICac
 
             var index = await searchClient.GetIndexAsync(indexName);
 
-            return index.Value;
+            return new(index.Value);
         }
         catch (Exception ex)
         {
@@ -117,7 +118,7 @@ public sealed class SearchService(ISubscriptionService subscriptionService, ICac
         }
     }
 
-    public async Task<object> QueryIndex(
+    public async Task<List<JsonElement>> QueryIndex(
         string serviceName,
         string indexName,
         string searchText,

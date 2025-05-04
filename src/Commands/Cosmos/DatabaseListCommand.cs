@@ -19,7 +19,7 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
 
     protected override string GetCommandDescription() =>
         """
-        List all databases in a Cosmos DB account. This command retrieves and displays all databases available 
+        List all databases in a Cosmos DB account. This command retrieves and displays all databases available
         in the specified Cosmos DB account. Results include database names and are returned as a JSON array.
         """;
 
@@ -44,7 +44,9 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
                 args.RetryPolicy);
 
             context.Response.Results = databases?.Count > 0 ?
-                new { databases } :
+                ResponseResult.Create(
+                    new DatabaseListCommandResult(databases),
+                    CosmosJsonContext.Default.DatabaseListCommandResult) :
                 null;
         }
         catch (Exception ex)
@@ -55,4 +57,6 @@ public sealed class DatabaseListCommand(ILogger<DatabaseListCommand> logger) : B
 
         return context.Response;
     }
+
+    internal record DatabaseListCommandResult(List<string> Databases);
 }

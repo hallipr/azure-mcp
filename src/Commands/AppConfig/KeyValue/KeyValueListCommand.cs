@@ -4,6 +4,7 @@
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.AppConfig.KeyValue;
+using AzureMcp.Models.AppConfig;
 using AzureMcp.Models.Argument;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Interfaces;
@@ -24,8 +25,8 @@ public sealed class KeyValueListCommand(ILogger<KeyValueListCommand> logger) : B
 
     protected override string GetCommandDescription() =>
         """
-        List all key-values in an App Configuration store. This command retrieves and displays all key-value pairs 
-        from the specified store. Each key-value includes its key, value, label, content type, ETag, last modified 
+        List all key-values in an App Configuration store. This command retrieves and displays all key-value pairs
+        from the specified store. Each key-value includes its key, value, label, content type, ETag, last modified
         time, and lock status.
         """;
 
@@ -85,7 +86,9 @@ public sealed class KeyValueListCommand(ILogger<KeyValueListCommand> logger) : B
                 args.RetryPolicy);
 
             context.Response.Results = settings?.Count > 0 ?
-                new { settings } :
+                ResponseResult.Create(
+                    new KeyValueListCommandResult(settings),
+                    AppConfigJsonContext.Default.KeyValueListCommandResult) :
                 null;
         }
         catch (Exception ex)
@@ -96,4 +99,6 @@ public sealed class KeyValueListCommand(ILogger<KeyValueListCommand> logger) : B
 
         return context.Response;
     }
+
+    internal record KeyValueListCommandResult(List<KeyValueSetting> Settings);
 }

@@ -4,6 +4,7 @@
 using System.CommandLine.Parsing;
 using AzureMcp.Arguments.Monitor;
 using AzureMcp.Models.Command;
+using AzureMcp.Models.Monitor;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
@@ -18,8 +19,8 @@ public sealed class WorkspaceListCommand(ILogger<WorkspaceListCommand> logger) :
 
     protected override string GetCommandDescription() =>
         """
-        List Log Analytics workspaces in a subscription. This command retrieves all Log Analytics workspaces 
-        available in the specified Azure subscription, displaying their names, IDs, and other key properties. 
+        List Log Analytics workspaces in a subscription. This command retrieves all Log Analytics workspaces
+        available in the specified Azure subscription, displaying their names, IDs, and other key properties.
         Use this command to identify workspaces before querying their logs or tables.
         """;
 
@@ -42,7 +43,9 @@ public sealed class WorkspaceListCommand(ILogger<WorkspaceListCommand> logger) :
                 args.RetryPolicy);
 
             context.Response.Results = workspaces?.Count > 0 ?
-                new { workspaces } :
+                ResponseResult.Create(
+                    new WorkspaceListCommandResult(workspaces),
+                    MonitorJsonContext.Default.WorkspaceListCommandResult) :
                 null;
         }
         catch (Exception ex)
@@ -53,4 +56,6 @@ public sealed class WorkspaceListCommand(ILogger<WorkspaceListCommand> logger) :
 
         return context.Response;
     }
+
+    internal record WorkspaceListCommandResult(List<WorkspaceInfo> Workspaces);
 }

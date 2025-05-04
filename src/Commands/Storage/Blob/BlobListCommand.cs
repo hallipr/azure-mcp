@@ -21,7 +21,7 @@ public sealed class BlobListCommand(ILogger<BlobListCommand> logger) : BaseConta
         $"""
         List all blobs in a Storage container. This command retrieves and displays all blobs available
         in the specified container and Storage account. Results include blob names, sizes, and content types,
-        returned as a JSON array. Requires {Models.Argument.ArgumentDefinitions.Storage.AccountName} and 
+        returned as a JSON array. Requires {Models.Argument.ArgumentDefinitions.Storage.AccountName} and
         {Models.Argument.ArgumentDefinitions.Storage.ContainerName}.
         """;
 
@@ -45,7 +45,9 @@ public sealed class BlobListCommand(ILogger<BlobListCommand> logger) : BaseConta
                 args.Tenant,
                 args.RetryPolicy);
 
-            context.Response.Results = blobs?.Count > 0 ? new { blobs } : null;
+            context.Response.Results = blobs?.Count > 0
+                ? ResponseResult.Create(new BlobListCommandResult(blobs), StorageJsonContext.Default.BlobListCommandResult)
+                : null;
         }
         catch (Exception ex)
         {
@@ -55,4 +57,6 @@ public sealed class BlobListCommand(ILogger<BlobListCommand> logger) : BaseConta
 
         return context.Response;
     }
+
+    internal record BlobListCommandResult(List<string> Blobs);
 }

@@ -5,6 +5,7 @@ using System.CommandLine.Parsing;
 using AzureMcp.Arguments.Group;
 using AzureMcp.Models.Argument;
 using AzureMcp.Models.Command;
+using AzureMcp.Models.ResourceGroup;
 using AzureMcp.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
@@ -43,7 +44,7 @@ public sealed class GroupListCommand(ILogger<GroupListCommand> logger) : Subscri
                 args.RetryPolicy);
 
             context.Response.Results = groups?.Count > 0 ?
-                new { groups } :
+                ResponseResult.Create(new Result(groups), JsonSourceGenerationContext.Default.Result) :
                 null;
         }
         catch (Exception ex)
@@ -54,4 +55,6 @@ public sealed class GroupListCommand(ILogger<GroupListCommand> logger) : Subscri
 
         return context.Response;
     }
+
+    internal record class Result(List<ResourceGroupInfo> Groups);
 }

@@ -43,7 +43,10 @@ public sealed class ServiceListCommand(ILogger<ServiceListCommand> logger) : Sub
                 args.Tenant,
                 args.RetryPolicy);
 
-            context.Response.Results = services?.Count > 0 ? new { services } : null;
+            context.Response.Results = services?.Count > 0 ?
+                ResponseResult.Create(
+                    new ServiceListCommandResult(services),
+                    SearchJsonContext.Default.ServiceListCommandResult) : null;
         }
         catch (Exception ex)
         {
@@ -53,4 +56,7 @@ public sealed class ServiceListCommand(ILogger<ServiceListCommand> logger) : Sub
 
         return context.Response;
     }
+
+    internal sealed record ServiceListCommandResult(List<string> Services);
 }
+

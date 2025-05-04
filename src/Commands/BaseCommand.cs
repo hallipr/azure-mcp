@@ -44,13 +44,16 @@ public abstract class BaseCommand : IBaseCommand
         // Don't clear arguments when handling exceptions
         response.Status = GetStatusCode(ex);
         response.Message = GetErrorMessage(ex) + ". To mitigate this issue, please refer to the troubleshooting guidelines here at https://aka.ms/azmcp/troubleshooting.";
-        response.Results = new
-        {
+        response.Results = Models.Command.ResponseResult.Create(new ExceptionResult(
             ex.Message,
             ex.StackTrace,
-            Type = ex.GetType().Name
-        };
+            ex.GetType().Name), JsonSourceGenerationContext.Default.ExceptionResult);
     }
+
+    internal record ExceptionResult(
+        string Message,
+        string? StackTrace,
+        string Type);
 
     protected virtual string GetErrorMessage(Exception ex) => ex.Message;
 

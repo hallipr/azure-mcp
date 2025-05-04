@@ -41,13 +41,21 @@ public class IndexQueryCommandTests
         var indexName = "index1";
         var queryText = "test query";
 
-        var expectedResults = new
-        {
-            totalCount = 1,
-            results = new[] {
-                JsonDocument.Parse("{\"id\":\"1\",\"title\":\"Test Document\"}").RootElement
-            }
-        };
+        List<JsonElement> expectedResults = [
+            JsonDocument.Parse(
+                """
+                {
+                    "totalCount": 1,
+                    "results": [
+                        {
+                            "id": "1",
+                            "title": "Test Document"
+                        }
+                    ]
+                }
+                """
+            ).RootElement
+        ];
 
         _searchService
             .QueryIndex(

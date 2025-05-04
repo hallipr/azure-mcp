@@ -6,7 +6,6 @@ using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using AzureMcp.Arguments.Storage.Blob;
 using AzureMcp.Models.Argument;
-using AzureMcp.Services.Interfaces;
 
 namespace AzureMcp.Commands.Storage.Blob.Container;
 

@@ -5,6 +5,7 @@ using System.CommandLine;
 using System.Text.Json;
 using AzureMcp.Commands;
 using AzureMcp.Extensions;
+using AzureMcp.Models;
 using AzureMcp.Models.Command;
 using AzureMcp.Services.Azure.AppConfig;
 using AzureMcp.Services.Azure.Cosmos;
@@ -40,7 +41,7 @@ catch (Exception ex)
         Duration = 0
     };
 
-    Console.WriteLine(JsonSerializer.Serialize(response));
+    Console.WriteLine(JsonSerializer.Serialize(response, ModelsJsonContext.Default.CommandResponse));
     return 1;
 }
 

@@ -18,8 +18,8 @@ public sealed class KeyValueLockCommand(ILogger<KeyValueLockCommand> logger) : B
 
     protected override string GetCommandDescription() =>
         """
-        Lock a key-value in an App Configuration store. This command sets a key-value to read-only mode, 
-        preventing any modifications to its value. You must specify an account name and key. Optionally, 
+        Lock a key-value in an App Configuration store. This command sets a key-value to read-only mode,
+        preventing any modifications to its value. You must specify an account name and key. Optionally,
         you can specify a label to lock a specific labeled version of the key-value.
         """;
 
@@ -44,7 +44,10 @@ public sealed class KeyValueLockCommand(ILogger<KeyValueLockCommand> logger) : B
                 args.RetryPolicy,
                 args.Label);
 
-            context.Response.Results = new { key = args.Key, label = args.Label };
+            context.Response.Results =
+                ResponseResult.Create(
+                    new KeyValueLockCommandResult(args.Key, args.Label),
+                    AppConfigJsonContext.Default.KeyValueLockCommandResult);
         }
         catch (Exception ex)
         {
@@ -54,4 +57,6 @@ public sealed class KeyValueLockCommand(ILogger<KeyValueLockCommand> logger) : B
 
         return context.Response;
     }
+
+    internal record KeyValueLockCommandResult(string? Key, string? Label);
 }

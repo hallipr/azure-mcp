@@ -6,7 +6,6 @@ using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using AzureMcp.Arguments.AppConfig;
 using AzureMcp.Models.Argument;
-using AzureMcp.Services.Interfaces;
 
 namespace AzureMcp.Commands.AppConfig;
 

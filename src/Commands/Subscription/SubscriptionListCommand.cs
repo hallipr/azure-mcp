@@ -39,7 +39,11 @@ public sealed class SubscriptionListCommand(ILogger<SubscriptionListCommand> log
             var subscriptions = await subscriptionService.GetSubscriptions(args.Tenant,
                 args.RetryPolicy);
 
-            context.Response.Results = subscriptions?.Count > 0 ? new { subscriptions } : null;
+            context.Response.Results = subscriptions?.Count > 0
+                ? ResponseResult.Create(
+                    new SubscriptionListCommandResult(subscriptions),
+                    SubscriptionJsonContext.Default.SubscriptionListCommandResult)
+                : null;
         }
         catch (Exception ex)
         {
@@ -49,4 +53,6 @@ public sealed class SubscriptionListCommand(ILogger<SubscriptionListCommand> log
 
         return context.Response;
     }
+
+    internal record SubscriptionListCommandResult(List<ArgumentOption> Subscriptions);
 }
