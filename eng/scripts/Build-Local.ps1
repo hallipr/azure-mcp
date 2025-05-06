@@ -3,26 +3,31 @@
 
 [CmdletBinding(DefaultParameterSetName='none')]
 param(
-    [switch] $SelfContained,
-    [switch] $ReadyToRun,
+    [switch] $NoSelfContained,
+    [switch] $NoUsePaths,
     [switch] $Trimmed,
-    [switch] $UsePaths,
     [switch] $AllPlatforms,
-    [switch] $VerifyNpx
+    [switch] $VerifyNpx,
+    [string] $NpxArgs = 'tools list'
 )
 
-$RepoRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
+. "$PSScriptRoot/../common/scripts/common.ps1"
+$root = $RepoRoot.Path.Replace('\', '/')
 
-$packagesPath = "$RepoRoot/.work/platform"
-$distPath = "$RepoRoot/.dist"
+$packagesPath = "$root/.work/platform"
+$distPath = "$root/.dist"
+
+$version = [AzureEngSemanticVersion]::ParseVersionString((& "$PSScriptRoot/Get-Version.ps1"))
+$version.PrereleaseLabel = 'alpha'
+$version.PrereleaseNumber = [int]::Parse((Get-Date -UFormat %s))
 
 function Build($os, $arch) {
-    & "$RepoRoot/eng/scripts/Build-Module.ps1" `
+    & "$root/eng/scripts/Build-Module.ps1" `
+        -Version $version `
         -OperatingSystem $os `
         -Architecture $arch `
-        -SelfContained:$SelfContained `
+        -SelfContained:(!$NoSelfContained) `
         -Trimmed:$Trimmed `
-        -ReadyToRun:$ReadyToRun `
         -OutputPath $packagesPath
 }
 
@@ -51,21 +56,26 @@ else {
     Build -os $os -arch $arch
 }
 
-& "$RepoRoot/eng/scripts/Pack-Modules.ps1" `
+& "$root/eng/scripts/Pack-Modules.ps1" `
+    -Version $version `
     -ArtifactsPath $packagesPath `
-    -UsePaths:$UsePaths `
+    -UsePaths:(!$NoUsePaths) `
     -OutputPath $distPath
 
-if ($VerifyNpx) {
-    Push-Location -Path $RepoRoot
-    try {
-        $tgzFile = Get-ChildItem -Path "$distPath/wrapper" -Filter '*.tgz'
-        | Select-Object -ExpandProperty 'Name' -First 1
+$tgzFile = Get-ChildItem -Path "$distPath/wrapper" -Filter '*.tgz'
+| Select-Object -First 1
 
-        Write-Host "> npx -y clear-npx-cache"
-        npx -y clear-npx-cache
-        Write-Host "> npx -y `".dist/wrapper/$tgzFile`" tools list"
-        npx -y ".dist/wrapper/$tgzFile" tools list
+$testSettingsPath = "$root/.testsettings.json"
+if($tgzFile -and (Test-Path -Path $testSettingsPath)) {
+    $testSettings = Get-Content -Path $testSettingsPath -Raw | ConvertFrom-Json -AsHashtable
+    $testSettings.TestPackage = "file://$tgzFile"
+    $testSettings | ConvertTo-Json -Depth 10 | Set-Content -Path $testSettingsPath -NoNewline
+}
+
+if ($VerifyNpx) {
+    Push-Location -Path $root
+    try {
+        Invoke-LoggedCommand "npx -y `"file://$tgzFile`" $NpxArgs"
     }
     finally {
         Pop-Location
