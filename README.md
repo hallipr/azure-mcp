@@ -131,7 +131,9 @@ The Azure MCP Server provides Azure SDK and Azure CLI developer tools. It can be
    * [💫 Stable release](https://code.visualstudio.com/download)
    * [🔮 Insiders release](https://code.visualstudio.com/insiders)
 2. Install the [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) and [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extensions
-3. Open VS Code in an empty folder
+3. Install [Node.js](https://nodejs.org/en/download) 20 or later
+   * Ensure `node` and `npm` are in your path
+4. Open VS Code in an empty folder
 
 ### Installation
 
