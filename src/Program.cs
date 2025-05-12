@@ -31,7 +31,6 @@ internal class Program
     {
         try
         {
-            LogDebugArgs(args);
             ServiceCollection services = new();
             ConfigureServices(services);
 
@@ -80,26 +79,5 @@ internal class Program
         services.AddSingleton<IKeyVaultService, KeyVaultService>();
         services.AddSingleton<IServiceBusService, ServiceBusService>();
         services.AddSingleton<CommandFactory>();
-    }
-
-    internal static void LogDebugArgs(string[] args)
-    {
-        string debug = Environment.GetEnvironmentVariable("DEBUG") ?? string.Empty;
-
-        bool isDebugEnabled =
-            debug.Equals("true", StringComparison.OrdinalIgnoreCase) ||
-            debug.Contains("azure-mcp", StringComparison.OrdinalIgnoreCase) ||
-            debug == "*";
-
-        //if (isDebugEnabled)
-        {
-            Console.WriteLine(isDebugEnabled);
-            Console.WriteLine("\n.NET Process starting:");
-            Console.WriteLine("All args:");
-            for (int i = 0; i < args.Length; i++)
-            {
-                Console.WriteLine($"  {i}: {args[i]}");
-            }
-        }
     }
 }
