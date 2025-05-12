@@ -3,31 +3,26 @@
 
 [CmdletBinding(DefaultParameterSetName='none')]
 param(
-    [switch] $NoSelfContained,
-    [switch] $NoUsePaths,
+    [switch] $SelfContained,
+    [switch] $ReadyToRun,
     [switch] $Trimmed,
+    [switch] $UsePaths,
     [switch] $AllPlatforms,
-    [switch] $VerifyNpx,
-    [string] $NpxArgs = 'tools list'
+    [switch] $VerifyNpx
 )
 
-. "$PSScriptRoot/../common/scripts/common.ps1"
-$root = $RepoRoot.Path.Replace('\', '/')
+$RepoRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 
-$packagesPath = "$root/.work/platform"
-$distPath = "$root/.dist"
-
-$version = [AzureEngSemanticVersion]::ParseVersionString((& "$PSScriptRoot/Get-Version.ps1"))
-$version.PrereleaseLabel = 'alpha'
-$version.PrereleaseNumber = [int]::Parse((Get-Date -UFormat %s))
+$packagesPath = "$RepoRoot/.work/platform"
+$distPath = "$RepoRoot/.dist"
 
 function Build($os, $arch) {
-    & "$root/eng/scripts/Build-Module.ps1" `
-        -Version $version `
+    & "$RepoRoot/eng/scripts/Build-Module.ps1" `
         -OperatingSystem $os `
         -Architecture $arch `
-        -SelfContained:(!$NoSelfContained) `
+        -SelfContained:$SelfContained `
         -Trimmed:$Trimmed `
+        -ReadyToRun:$ReadyToRun `
         -OutputPath $packagesPath
 }
 
@@ -56,26 +51,21 @@ else {
     Build -os $os -arch $arch
 }
 
-& "$root/eng/scripts/Pack-Modules.ps1" `
-    -Version $version `
+& "$RepoRoot/eng/scripts/Pack-Modules.ps1" `
     -ArtifactsPath $packagesPath `
-    -UsePaths:(!$NoUsePaths) `
+    -UsePaths:$UsePaths `
     -OutputPath $distPath
 
-$tgzFile = Get-ChildItem -Path "$distPath/wrapper" -Filter '*.tgz'
-| Select-Object -First 1
-
-$testSettingsPath = "$root/.testsettings.json"
-if($tgzFile -and (Test-Path -Path $testSettingsPath)) {
-    $testSettings = Get-Content -Path $testSettingsPath -Raw | ConvertFrom-Json -AsHashtable
-    $testSettings.TestPackage = "file://$tgzFile"
-    $testSettings | ConvertTo-Json -Depth 10 | Set-Content -Path $testSettingsPath -NoNewline
-}
-
 if ($VerifyNpx) {
-    Push-Location -Path $root
+    Push-Location -Path $RepoRoot
     try {
-        Invoke-LoggedCommand "npx -y `"file://$tgzFile`" $NpxArgs"
+        $tgzFile = Get-ChildItem -Path "$distPath/wrapper" -Filter '*.tgz'
+        | Select-Object -ExpandProperty 'Name' -First 1
+
+        Write-Host "> npx -y clear-npx-cache"
+        npx -y clear-npx-cache
+        Write-Host "> npx -y `".dist/wrapper/$tgzFile`" tools list"
+        npx -y ".dist/wrapper/$tgzFile" tools list
     }
     finally {
         Pop-Location
