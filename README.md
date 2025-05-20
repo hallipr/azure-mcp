@@ -215,13 +215,13 @@ Optionally, customers can use `--env` or `--volume` to pass authentication value
 
 If you use the default package spec of `@azure/mcp@latest`, npx will look for a new version on each server start. If you use just `@azure/mcp`, npx will continue to use its cached version until its cache is cleared.
 
-### NPM
+#### NPM
 
 If you globally install the cli via `npm install -g @azure/mcp` it will use the installed version until you manually update it with `npm update -g @azure/mcp`.
 
 #### Docker
 
-There is no version update built into the docker image.  To update, just pull the latest from the repo and repeat the [docker installation instructions](#Docker%20Install).
+There is no version update built into the docker image.  To update, just pull the latest from the repo and repeat the [docker installation instructions](#docker-install).
 
 ## 🧪 Test the Azure MCP Server
 
