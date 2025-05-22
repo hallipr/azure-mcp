@@ -13,9 +13,9 @@ using Xunit;
 namespace AzureMcp.Tests.Client;
 
 
-public class KustoCommandTests(McpClientFixture mcpClient, LiveTestSettingsFixture liveTestSettings, ITestOutputHelper output)
-    : CommandTestsBase(mcpClient, liveTestSettings, output),
-    IClassFixture<McpClientFixture>, IClassFixture<LiveTestSettingsFixture>, IAsyncLifetime
+public class KustoCommandTests(LiveTestFixture liveTestFixture, ITestOutputHelper output)
+    : CommandTestsBase(liveTestFixture, output),
+    IClassFixture<LiveTestFixture>, IAsyncLifetime
 {
     private const string TestDatabaseName = "ToDoLists";
 

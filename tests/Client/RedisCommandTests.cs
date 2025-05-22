@@ -8,11 +8,10 @@ using Xunit;
 namespace AzureMcp.Tests.Client;
 
 public class RedisCommandTests : CommandTestsBase,
-    IClassFixture<McpClientFixture>,
-    IClassFixture<LiveTestSettingsFixture>
+    IClassFixture<LiveTestFixture>
 {
-    public RedisCommandTests(McpClientFixture mcpClient, LiveTestSettingsFixture liveTestSettings, ITestOutputHelper output)
-        : base(mcpClient, liveTestSettings, output)
+    public RedisCommandTests(LiveTestFixture liveTestFixture, ITestOutputHelper output)
+        : base(liveTestFixture, output)
     { }
 
     [Fact]
