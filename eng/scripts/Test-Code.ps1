@@ -19,21 +19,15 @@ if (!$TestResultsPath) {
 # Clean previous results
 Remove-Item -Recurse -Force $TestResultsPath -ErrorAction SilentlyContinue
 
-Remove-Item "$RepoRoot/tests/xunit.runner.json" -Force
-Write-Output "Deleted existing xunit.runner.json file"
-Rename-Item "$RepoRoot/tests/xunit.runner.ci.json" -NewName "xunit.runner.json"
-Write-Output "Renamed xunit.runner.ci.json to xunit.runner.json"
-$xunitJson = Get-Content "$RepoRoot/tests/xunit.runner.json" | ConvertFrom-Json
-Write-Output $xunitJson
-
 # Run tests with coverage
 $filter = $Live ? "Category~Live" : "Category!~Live"
-
+$parallelSettings = $Live ? "/p:ParallelizeTestCollections=false" : ""
 Invoke-LoggedCommand ("dotnet test '$RepoRoot/tests/AzureMcp.Tests.csproj'" +
   " --collect:'XPlat Code Coverage'" +
   " --filter '$filter'" +
   " --results-directory '$TestResultsPath'" +
-  " --logger 'trx'")
+  " --logger 'trx'" +
+  " $parallelSettings")
 
 # Find the coverage file
 $coverageFile = Get-ChildItem -Path $TestResultsPath -Recurse -Filter "coverage.cobertura.xml"
