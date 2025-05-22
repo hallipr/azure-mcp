@@ -92,9 +92,10 @@ steps:
       New-Item './.work' -ItemType Directory -Force | Out-Null
       $path = './.work/Usage.md'
 
-      $markdown | Out-File -FilePath $path -Encoding utf8
-      Start-Sleep -Seconds 2
-      Write-Host "##vso[task.uploadsummary]$(Resolve-Path $path)"
+      Set-Content -Path $path -Value $markdown -Encoding utf8
+      $file = Get-Item $path
+      Write-Host "Wrote summary to $($file.FullName). Uploading..."
+      Write-Host "##vso[task.uploadsummary]$($file.FullName)"
     displayName: "Document dev version usage"
     env:
       REGISTRY_URL: ${{parameters.Registry}}
