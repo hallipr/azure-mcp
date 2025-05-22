@@ -93,6 +93,7 @@ steps:
       $path = './.work/Usage.md'
 
       $markdown | Out-File -FilePath $path -Encoding utf8
+      Start-Sleep -Seconds 2
       Write-Host "##vso[task.uploadsummary]$(Resolve-Path $path)"
     displayName: "Document dev version usage"
     env:
