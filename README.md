@@ -209,7 +209,7 @@ AZURE_CLIENT_SECRET={YOUR_AZURE_CLIENT_SECRET}
 
 Optionally, customers can use `--env` or `--volume` to pass authentication values.
 
-### Updates
+### 🔄️ Updates
 
 #### NPX
 
